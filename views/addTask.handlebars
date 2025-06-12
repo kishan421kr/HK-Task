@@ -1,0 +1,136 @@
+
+    <style>
+        
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: rgb(92, 89, 89);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            color: white;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff6600;
+        }
+        #taskForm div{
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 50%;
+            padding: 12px;
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #e55a00;
+        }
+    </style>
+
+    <div class="container">
+        <h2>Add Task</h2>
+        <form id="taskForm">
+            <div >
+                <label for="employee">Select Employee</label>
+                <select id="employee" required>
+                    <option value="">Choose an employee</option>
+                </select>
+            </div>
+            <div >
+                <label for="taskName">Task Name</label>
+                <input type="text" id="taskName" required>
+            </div>
+            <div >
+                <label for="taskType">Task Type</label>
+                <select name="" id="taskType">
+                    <option value="pending">Pending</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
+            <button type="submit">Add Task</button>
+        </form>
+        
+    </div>
+
+    <script>
+        window.onload = function() {
+            fetch('/api/getEmployees')
+                .then(response => response.json())
+                .then(employees => {
+                    const select = document.getElementById('employee');
+                    employees.forEach(emp => {
+                        const option = document.createElement('option');
+                        option.value = emp.id;
+                        option.textContent = emp.name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.log('Could not load employees');
+                });
+        };
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const employeeId = document.getElementById('employee').value;
+            const taskName = document.getElementById('taskName').value.trim();
+            const taskType = document.getElementById('taskType').value.trim();
+            
+            if (!employeeId || !taskName || !taskType) {
+                alert('fill all fields');
+                return;
+            }
+            
+            if (taskName.length < 3) {
+                alert('Enter at least 3 characters ');
+                return;
+            }
+            
+            fetch('/api/AddTask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    employeeId: employeeId,
+                    taskName: taskName,
+                    taskType: taskType
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Task added');
+                    document.getElementById('taskForm').reset();
+                } else {
+                    alert('Please try again');
+                }
+            })
+            .catch(error => {
+                alert('Network error');
+            });
+        });
+    </script>
+
+
