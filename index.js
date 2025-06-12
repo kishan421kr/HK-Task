@@ -20,7 +20,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-
 app.engine('handlebars' , handlebars.engine({
     layoutsDir:`${__dirname}/views/layouts`
 }));
